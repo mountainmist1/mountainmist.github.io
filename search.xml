@@ -12,26 +12,6 @@
       </tags>
   </entry>
   <entry>
-    <title>利用iostat命令自定义key实现zabbix磁盘io监控</title>
-    <url>/2021/03/11/iostat/</url>
-    <content><![CDATA[<p>安装sysstat</p>
-<div class="highlight-wrap"autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false" contenteditable="true"data-rel="BASH"><figure class="iseeu highlight /bash"><table><tr><td class="code"><pre><span class="line">yum install sysstat -y</span><br></pre></td></tr></table></figure></div>
-<a id="more"></a>
-<p>安装bc</p>
-<div class="highlight-wrap"autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false" contenteditable="true"data-rel="BASH"><figure class="iseeu highlight /bash"><table><tr><td class="code"><pre><span class="line">yum install bc -y</span><br></pre></td></tr></table></figure></div>
-<p>编写关于iostat的脚本(io_monitor.sh)可以考虑不写bc<br>测试脚本可用性</p>
-<div class="highlight-wrap"autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false" contenteditable="true"data-rel="BASH"><figure class="iseeu highlight /bash"><table><tr><td class="code"><pre><span class="line">./io_monitor.sh disk_read</span><br></pre></td></tr></table></figure></div>
-<p>zabbix_agentd.conf中加入自定义key:</p>
-<div class="highlight-wrap"autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false" contenteditable="true"data-rel="BASH"><figure class="iseeu highlight /bash"><table><tr><td class="code"><pre><span class="line">UserParameter=io_stats[*],/etc/zabbix/io_monitor.sh <span class="string">"<span class="variable">$1</span>"</span></span><br></pre></td></tr></table></figure></div>
-<p>/etc/zabbix/io_monitor.sh 为脚本位置<br>重启zabbix_agentd服务<br>zabbix服务端测试自定义key是否可以使用</p>
-<div class="highlight-wrap"autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false" contenteditable="true"data-rel="BASH"><figure class="iseeu highlight /bash"><table><tr><td class="code"><pre><span class="line">zabbix_get -s 188.103.189.104 -p 10050 -k <span class="string">"io_stats[disk_read]"</span></span><br></pre></td></tr></table></figure></div>
-<p>zbbix页面完成监控配置</p>
-]]></content>
-      <tags>
-        <tag>linux</tag>
-      </tags>
-  </entry>
-  <entry>
     <title>docker-内部端口映射问题</title>
     <url>/2020/07/16/docker01/</url>
     <content><![CDATA[<h2 id="虚拟机挂起再开启后docker容器映射端口无法访问"><a href="#虚拟机挂起再开启后docker容器映射端口无法访问" class="headerlink" title="虚拟机挂起再开启后docker容器映射端口无法访问"></a>虚拟机挂起再开启后docker容器映射端口无法访问</h2><h2 id="需要在宿主机上设置ipv4端口转发"><a href="#需要在宿主机上设置ipv4端口转发" class="headerlink" title="需要在宿主机上设置ipv4端口转发"></a>需要在宿主机上设置ipv4端口转发</h2> <a id="more"></a>
@@ -47,8 +27,8 @@
 <p>保存并重启</p>
 ]]></content>
       <tags>
-        <tag>linux</tag>
         <tag>docker</tag>
+        <tag>linux</tag>
       </tags>
   </entry>
   <entry>
@@ -62,7 +42,7 @@
 <div class="highlight-wrap"autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false" contenteditable="true"data-rel="PLAIN"><figure class="iseeu highlight /plain"><table><tr><td class="code"><pre><span class="line">mv admin.conf admin.conf.bak</span><br><span class="line">kubeadm init phase kubeconfig admin --apiserver-advertise-address &lt;新ip&gt;</span><br></pre></td></tr></table></figure></div>
 
 <p>删除旧的证书，生成新证书</p>
-<div class="highlight-wrap"autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false" contenteditable="true"data-rel="PLAIN"><figure class="iseeu highlight /plain"><table><tr><td class="code"><pre><span class="line">cd pki</span><br><span class="line">&#x2F;etc&#x2F;kubernetes&#x2F;pki# mv apiserver.key apiserver.key.bak</span><br><span class="line">&#x2F;etc&#x2F;kubernetes&#x2F;pki# mv apiserver.crt apiserver.crt.bak</span><br><span class="line">&#x2F;etc&#x2F;kubernetes&#x2F;pki# kubeadm init phase certs apiserver  --apiserver-advertise-address &lt;新ip&gt;</span><br></pre></td></tr></table></figure></div>
+<div class="highlight-wrap"autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false" contenteditable="true"data-rel="PLAIN"><figure class="iseeu highlight /plain"><table><tr><td class="code"><pre><span class="line">cd pki</span><br><span class="line">mv apiserver.key apiserver.key.bak</span><br><span class="line">mv apiserver.crt apiserver.crt.bak</span><br><span class="line">kubeadm init phase certs apiserver  --apiserver-advertise-address &lt;新ip&gt;</span><br></pre></td></tr></table></figure></div>
 
 <p>重启docker和kubelet</p>
 <div class="highlight-wrap"autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false" contenteditable="true"data-rel="SHELL"><figure class="iseeu highlight /shell"><table><tr><td class="code"><pre><span class="line">systemctl restart docker.service</span><br><span class="line">systemctl restart kubelet</span><br></pre></td></tr></table></figure></div>
@@ -80,6 +60,26 @@
 ]]></content>
       <tags>
         <tag>kubernetes</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>利用iostat命令自定义key实现zabbix磁盘io监控</title>
+    <url>/2021/03/11/iostat/</url>
+    <content><![CDATA[<p>安装sysstat</p>
+<div class="highlight-wrap"autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false" contenteditable="true"data-rel="BASH"><figure class="iseeu highlight /bash"><table><tr><td class="code"><pre><span class="line">yum install sysstat -y</span><br></pre></td></tr></table></figure></div>
+<a id="more"></a>
+<p>安装bc</p>
+<div class="highlight-wrap"autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false" contenteditable="true"data-rel="BASH"><figure class="iseeu highlight /bash"><table><tr><td class="code"><pre><span class="line">yum install bc -y</span><br></pre></td></tr></table></figure></div>
+<p>编写关于iostat的脚本(io_monitor.sh)可以考虑不写bc<br>测试脚本可用性</p>
+<div class="highlight-wrap"autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false" contenteditable="true"data-rel="BASH"><figure class="iseeu highlight /bash"><table><tr><td class="code"><pre><span class="line">./io_monitor.sh disk_read</span><br></pre></td></tr></table></figure></div>
+<p>zabbix_agentd.conf中加入自定义key:</p>
+<div class="highlight-wrap"autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false" contenteditable="true"data-rel="BASH"><figure class="iseeu highlight /bash"><table><tr><td class="code"><pre><span class="line">UserParameter=io_stats[*],/etc/zabbix/io_monitor.sh <span class="string">"<span class="variable">$1</span>"</span></span><br></pre></td></tr></table></figure></div>
+<p>/etc/zabbix/io_monitor.sh 为脚本位置<br>重启zabbix_agentd服务<br>zabbix服务端测试自定义key是否可以使用</p>
+<div class="highlight-wrap"autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false" contenteditable="true"data-rel="BASH"><figure class="iseeu highlight /bash"><table><tr><td class="code"><pre><span class="line">zabbix_get -s 188.103.189.104 -p 10050 -k <span class="string">"io_stats[disk_read]"</span></span><br></pre></td></tr></table></figure></div>
+<p>zbbix页面完成监控配置</p>
+]]></content>
+      <tags>
+        <tag>linux</tag>
       </tags>
   </entry>
   <entry>
@@ -133,6 +133,27 @@
       </tags>
   </entry>
   <entry>
+    <title>python-unittest</title>
+    <url>/2020/07/27/python-unittest/</url>
+    <content><![CDATA[<h2 id="类的测试"><a href="#类的测试" class="headerlink" title="类的测试"></a>类的测试</h2><h3 id="import-unittest导入unittest模块"><a href="#import-unittest导入unittest模块" class="headerlink" title="import unittest导入unittest模块"></a>import unittest导入unittest模块</h3><h3 id="定义一个继承自unittest-TestCase的测试用例类-class-TestSurvey-unittest-TestCase"><a href="#定义一个继承自unittest-TestCase的测试用例类-class-TestSurvey-unittest-TestCase" class="headerlink" title="定义一个继承自unittest.TestCase的测试用例类 class TestSurvey(unittest.TestCase)"></a>定义一个继承自unittest.TestCase的测试用例类 class TestSurvey(unittest.TestCase)</h3><p>unittest类包含方法setUp()，只需要创建一次对象，就可以在每个测试方法中使用它们</p>
+<a id="more"></a>
+<p>如果在TestCase类中包含了方法setUp(),python将先运行它，再运行各个以test_开头的方法，这样编写的每个测试方法中都可使用在setUp()中创建的对象了<br>定义测试用例，名字以test开头，unittest会自动将test开头的方法放入测试用例集中</p>
+<p>调用unittest.main()启动测试</p>
+<div class="highlight-wrap"autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false" contenteditable="true"data-rel="BASH"><figure class="iseeu highlight /bash"><table><tr><td class="code"><pre><span class="line">assertEqual(a, b)          a == b</span><br><span class="line"></span><br><span class="line">assertNotEqual(a, b)       a != b</span><br><span class="line"></span><br><span class="line">assertTrue(x)              bool(x) is True</span><br><span class="line"></span><br><span class="line">assertFalse(x)             bool(x) is False</span><br><span class="line"></span><br><span class="line">assertIs(a, b)             a is b</span><br><span class="line"></span><br><span class="line">assertIsNot(a, b)          a is not b</span><br><span class="line"></span><br><span class="line">assertIsNone(x)            x is None</span><br><span class="line"></span><br><span class="line">assertIsNotNone(x)         x is not None</span><br><span class="line"></span><br><span class="line">assertIn(item, list)       item <span class="keyword">in</span> list</span><br><span class="line"></span><br><span class="line">assertNotIn(item, list)    item not <span class="keyword">in</span> list</span><br><span class="line"></span><br><span class="line">assertIsInstance(a, b)     isinstance(a, b)</span><br><span class="line"></span><br><span class="line">assertNotIsInstance(a, b)  not isinstance(a, b)</span><br></pre></td></tr></table></figure></div>
+<h3 id="类测试案例"><a href="#类测试案例" class="headerlink" title="类测试案例"></a>类测试案例</h3><div class="highlight-wrap"autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false" contenteditable="true"data-rel="BASH"><figure class="iseeu highlight /bash"><table><tr><td class="code"><pre><span class="line">class AnonymousSurvey():</span><br><span class="line">    <span class="string">""</span><span class="string">"收集匿名调查问卷的答案"</span><span class="string">""</span></span><br><span class="line">    def __init__(self, question):</span><br><span class="line">        <span class="string">""</span><span class="string">"存储一个问题，并为存储答案做准备"</span><span class="string">""</span></span><br><span class="line"></span><br><span class="line">        self.question = question</span><br><span class="line">        self.responses = []</span><br><span class="line"></span><br><span class="line">    def show_question(self):</span><br><span class="line">        <span class="comment"># 显示调查问卷</span></span><br><span class="line">        <span class="built_in">print</span>(self.question)</span><br><span class="line"></span><br><span class="line">    def store_responses(self, new_respones):</span><br><span class="line">        <span class="string">""</span><span class="string">"存储单份调查问卷"</span><span class="string">""</span></span><br><span class="line">        self.responses.append(new_respones)</span><br><span class="line"></span><br><span class="line">    def show_result(self):</span><br><span class="line">        <span class="string">""</span><span class="string">"显示收集到的所以信息"</span><span class="string">""</span></span><br><span class="line">        <span class="built_in">print</span>(<span class="string">"survey result:"</span>)</span><br><span class="line">        <span class="keyword">for</span> response <span class="keyword">in</span> self.responses:</span><br><span class="line">            <span class="built_in">print</span>(<span class="string">"- "</span> + response)</span><br><span class="line">        <span class="built_in">print</span>(self.responses)</span><br></pre></td></tr></table></figure></div>
+
+
+
+<p>关于survey的测试用例</p>
+<p>test_survey.py</p>
+<div class="highlight-wrap"autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false" contenteditable="true"data-rel="BASH"><figure class="iseeu highlight /bash"><table><tr><td class="code"><pre><span class="line">import unittest</span><br><span class="line">from survey import AnonymousSurvey</span><br><span class="line"></span><br><span class="line">class TestSurvey(unittest.TestCase):</span><br><span class="line">    <span class="string">""</span><span class="string">"争对AnonymousSurvey类的测试"</span><span class="string">""</span></span><br><span class="line">    def setUp(self):</span><br><span class="line">        <span class="string">""</span><span class="string">"创建一个调查对象和一组答案，供使用的测试方法使用"</span><span class="string">""</span></span><br><span class="line">        question = <span class="string">"what language did you first learn to speak?"</span></span><br><span class="line">        self.my_survey = AnonymousSurvey(question)</span><br><span class="line">        self.responses = [<span class="string">"English"</span>, <span class="string">"Spanish"</span>, <span class="string">"Mandarin"</span>]</span><br><span class="line"></span><br><span class="line">    def test_store_single_response(self):</span><br><span class="line">        <span class="string">""</span><span class="string">"测试单个答案存储"</span><span class="string">""</span></span><br><span class="line">        <span class="comment"># question = "what language did you first learn to speak?"</span></span><br><span class="line">        <span class="comment"># my_survey = AnonymousSurvey(question)</span></span><br><span class="line">        self.my_survey.store_responses(self.responses[1])</span><br><span class="line"></span><br><span class="line">        self.assertIn(self.responses[1], self.my_survey.responses)</span><br><span class="line"></span><br><span class="line">    def test_store_three_responses(self):</span><br><span class="line">        <span class="string">""</span><span class="string">"测试三个答案存储"</span><span class="string">""</span></span><br><span class="line">        <span class="comment"># question = "what language did you first learn to speak?"</span></span><br><span class="line">        <span class="comment"># my_survey = AnonymousSurvey(question)</span></span><br><span class="line">        <span class="comment"># responses = ["English", "Spanish", "Mandarin"]</span></span><br><span class="line">        <span class="keyword">for</span> response <span class="keyword">in</span> self.responses:</span><br><span class="line">            self.my_survey.store_responses(response)</span><br><span class="line"></span><br><span class="line">        <span class="keyword">for</span> response <span class="keyword">in</span> self.responses:</span><br><span class="line">            self.assertIn(response, self.my_survey.responses)</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="keyword">if</span> __name__ == <span class="string">'__main__'</span>:</span><br><span class="line">    unittest.main()</span><br></pre></td></tr></table></figure></div>
+<p>测试效果</p>
+<img src="/2020/07/27/python-unittest/%E6%B5%8B%E8%AF%95%E6%95%88%E6%9E%9C.png" class="" title="[title]">]]></content>
+      <tags>
+        <tag>python</tag>
+      </tags>
+  </entry>
+  <entry>
     <title>split</title>
     <url>/2020/07/14/split/</url>
     <content><![CDATA[<p>split 选项 文件 拆分后文件的前缀</p>
@@ -146,6 +167,32 @@
 <div class="highlight-wrap"autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false" contenteditable="true"data-rel="BASH"><figure class="iseeu highlight /bash"><table><tr><td class="code"><pre><span class="line">$ cat data0* &gt; 00alg.tar</span><br><span class="line">可以放在后台运行</span><br><span class="line">$ nohup cat data0* &gt; 00alg.tar &amp;</span><br><span class="line">$ tar xvf 00alg.tar</span><br></pre></td></tr></table></figure></div>]]></content>
       <tags>
         <tag>linux</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>ubuntu-mysql</title>
+    <url>/2020/10/14/ubuntu-mysql/</url>
+    <content><![CDATA[<h3 id="mysql的基本命令"><a href="#mysql的基本命令" class="headerlink" title="mysql的基本命令"></a>mysql的基本命令</h3><p>安装MySQL相关</p>
+<div class="highlight-wrap"autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false" contenteditable="true"data-rel="BASH"><figure class="iseeu highlight /bash"><table><tr><td class="code"><pre><span class="line">sudo apt-get install mysql-server</span><br></pre></td></tr></table></figure></div>
+<a id="more"></a>
+<p>2、查看MySQL安装情况</p>
+<div class="highlight-wrap"autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false" contenteditable="true"data-rel="BASH"><figure class="iseeu highlight /bash"><table><tr><td class="code"><pre><span class="line">apt-cacche show mysql-server</span><br></pre></td></tr></table></figure></div>
+<p>3、查看MySQL的状态</p>
+<div class="highlight-wrap"autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false" contenteditable="true"data-rel="BASH"><figure class="iseeu highlight /bash"><table><tr><td class="code"><pre><span class="line">service mysql status</span><br></pre></td></tr></table></figure></div>
+<p>4、启动</p>
+<div class="highlight-wrap"autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false" contenteditable="true"data-rel="BASH"><figure class="iseeu highlight /bash"><table><tr><td class="code"><pre><span class="line">service mysql start</span><br></pre></td></tr></table></figure></div>
+<p>5、停止</p>
+<div class="highlight-wrap"autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false" contenteditable="true"data-rel="BASH"><figure class="iseeu highlight /bash"><table><tr><td class="code"><pre><span class="line">service mysql stop</span><br></pre></td></tr></table></figure></div>
+<p>6、重启</p>
+<div class="highlight-wrap"autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false" contenteditable="true"data-rel="BASH"><figure class="iseeu highlight /bash"><table><tr><td class="code"><pre><span class="line">service mysql restart</span><br></pre></td></tr></table></figure></div>
+<p>7、查看配置文件的介绍<br>cd /etc/mysql/mysql.conf.dvim mysqld.cnf<br>port:默认端口号<br>datadir:数据库的保存路径<br>bind-address:表示服务器绑定的ip</p>
+<p>6、登录MySQL<br>mysql -uroot -p  （回车后输入mysql密码）</p>
+<p>7、退出数据库<br>exit、quit、ctrl+d<br>以下是SQL语言，每句以;(分号)结尾。</p>
+<div class="highlight-wrap"autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false" contenteditable="true"data-rel="SQL"><figure class="iseeu highlight /sql"><table><tr><td class="code"><pre><span class="line"></span><br><span class="line"><span class="comment">### 数据库相关操作</span></span><br><span class="line">```bash</span><br><span class="line">1、创建数据库</span><br><span class="line"><span class="keyword">create</span> <span class="keyword">database</span> databaseName <span class="keyword">charset</span>=utf8;</span><br><span class="line">note:若不指定charset(编码格式)只能是英文。</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">2、查看数据库</span><br><span class="line"><span class="keyword">show</span> <span class="keyword">databases</span>;</span><br><span class="line"></span><br><span class="line">3、使用数据库</span><br><span class="line"><span class="keyword">use</span> databaseName;</span><br><span class="line"></span><br><span class="line">4、查看当前所在数据库</span><br><span class="line"><span class="keyword">select</span> datadse();</span><br><span class="line"></span><br><span class="line">5、删除数据库</span><br><span class="line"><span class="keyword">drop</span> <span class="keyword">database</span> databaseName;</span><br></pre></td></tr></table></figure></div>
+
+<h3 id="表结构的相关操作"><a href="#表结构的相关操作" class="headerlink" title="表结构的相关操作"></a>表结构的相关操作</h3><div class="highlight-wrap"autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false" contenteditable="true"data-rel="BASH"><figure class="iseeu highlight /bash"><table><tr><td class="code"><pre><span class="line">1、创建表</span><br><span class="line">create table 表名（属性1 类型 约束，属性2 类型 [约束],...）；（不同字段间无空格）</span><br><span class="line"></span><br><span class="line">2、删除整张表</span><br><span class="line">drop tablename;</span><br><span class="line"></span><br><span class="line">3、查看创表语句</span><br><span class="line">show create table 表名；</span><br><span class="line"></span><br><span class="line">查看表结构：</span><br><span class="line">desc 表名；</span><br><span class="line"></span><br><span class="line">4、修改表（alter）-添加字段</span><br><span class="line">alter table tableName add 字段名 类型 约束；</span><br><span class="line"></span><br><span class="line">5、alter - 修改字段属性或约束</span><br><span class="line">alter table tableName modify 属性名 新类型 新约束；</span><br><span class="line"></span><br><span class="line">7、alter-修改字段</span><br><span class="line">alter table tableName change old属性名 new属性名 类型 约束；</span><br><span class="line"></span><br><span class="line">8、alter-删除字段</span><br><span class="line">alter table tableName drop 字段；</span><br></pre></td></tr></table></figure></div>]]></content>
+      <tags>
+        <tag>mysql</tag>
       </tags>
   </entry>
   <entry>
@@ -188,29 +235,39 @@
       </tags>
   </entry>
   <entry>
-    <title>ubuntu-mysql</title>
-    <url>/2020/10/14/ubuntu-mysql/</url>
-    <content><![CDATA[<h3 id="mysql的基本命令"><a href="#mysql的基本命令" class="headerlink" title="mysql的基本命令"></a>mysql的基本命令</h3><p>安装MySQL相关</p>
-<div class="highlight-wrap"autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false" contenteditable="true"data-rel="BASH"><figure class="iseeu highlight /bash"><table><tr><td class="code"><pre><span class="line">sudo apt-get install mysql-server</span><br></pre></td></tr></table></figure></div>
+    <title>关于StatefulSet</title>
+    <url>/2021/06/15/%E5%85%B3%E4%BA%8EStatefulSet/</url>
+    <content><![CDATA[<p>1.StatefulSet 为每个 Pod 副本创建了一个 DNS 域名，这个域名的格式为：</p>
+<div class="highlight-wrap"autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false" contenteditable="true"data-rel="BASH"><figure class="iseeu highlight /bash"><table><tr><td class="code"><pre><span class="line">$(podname).(headless servername)</span><br></pre></td></tr></table></figure></div>
+<p>也就意味着服务间是通过Pod域名来通信而非 Pod IP，因为当Pod所在Node发生故障时，Pod会被飘移到其它 Node 上，Pod IP 会发生变化，但是 Pod 域名不会有变化。</p>
 <a id="more"></a>
-<p>2、查看MySQL安装情况</p>
-<div class="highlight-wrap"autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false" contenteditable="true"data-rel="BASH"><figure class="iseeu highlight /bash"><table><tr><td class="code"><pre><span class="line">apt-cacche show mysql-server</span><br></pre></td></tr></table></figure></div>
-<p>3、查看MySQL的状态</p>
-<div class="highlight-wrap"autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false" contenteditable="true"data-rel="BASH"><figure class="iseeu highlight /bash"><table><tr><td class="code"><pre><span class="line">service mysql status</span><br></pre></td></tr></table></figure></div>
-<p>4、启动</p>
-<div class="highlight-wrap"autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false" contenteditable="true"data-rel="BASH"><figure class="iseeu highlight /bash"><table><tr><td class="code"><pre><span class="line">service mysql start</span><br></pre></td></tr></table></figure></div>
-<p>5、停止</p>
-<div class="highlight-wrap"autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false" contenteditable="true"data-rel="BASH"><figure class="iseeu highlight /bash"><table><tr><td class="code"><pre><span class="line">service mysql stop</span><br></pre></td></tr></table></figure></div>
-<p>6、重启</p>
-<div class="highlight-wrap"autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false" contenteditable="true"data-rel="BASH"><figure class="iseeu highlight /bash"><table><tr><td class="code"><pre><span class="line">service mysql restart</span><br></pre></td></tr></table></figure></div>
-<p>7、查看配置文件的介绍<br>cd /etc/mysql/mysql.conf.dvim mysqld.cnf<br>port:默认端口号<br>datadir:数据库的保存路径<br>bind-address:表示服务器绑定的ip</p>
-<p>6、登录MySQL<br>mysql -uroot -p  （回车后输入mysql密码）</p>
-<p>7、退出数据库<br>exit、quit、ctrl+d<br>以下是SQL语言，每句以;(分号)结尾。</p>
-<div class="highlight-wrap"autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false" contenteditable="true"data-rel="SQL"><figure class="iseeu highlight /sql"><table><tr><td class="code"><pre><span class="line"></span><br><span class="line"><span class="comment">### 数据库相关操作</span></span><br><span class="line">```bash</span><br><span class="line">1、创建数据库</span><br><span class="line"><span class="keyword">create</span> <span class="keyword">database</span> databaseName <span class="keyword">charset</span>=utf8;</span><br><span class="line">note:若不指定charset(编码格式)只能是英文。</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">2、查看数据库</span><br><span class="line"><span class="keyword">show</span> <span class="keyword">databases</span>;</span><br><span class="line"></span><br><span class="line">3、使用数据库</span><br><span class="line"><span class="keyword">use</span> databaseName;</span><br><span class="line"></span><br><span class="line">4、查看当前所在数据库</span><br><span class="line"><span class="keyword">select</span> datadse();</span><br><span class="line"></span><br><span class="line">5、删除数据库</span><br><span class="line"><span class="keyword">drop</span> <span class="keyword">database</span> databaseName;</span><br></pre></td></tr></table></figure></div>
+<p>2.缩容一个statefulset会最先删除最高索引值的实例（要把一个statefulset从两个实例扩容到三个实例，那么新实例的索引值就会是2，现有实例使用索引值为0和1）。</p>
+<p>3.像statefulset创建pod一样，statefulset也需要创建持久卷声明。所以一个statefulset可以拥有一个或多个卷声明模板，这些持久卷声明会在创建pod前创建出来，绑定到一个pod实例上。</p>
+<img src="/2021/06/15/%E5%85%B3%E4%BA%8EStatefulSet/pv.png" class="" title="[title]">
 
-<h3 id="表结构的相关操作"><a href="#表结构的相关操作" class="headerlink" title="表结构的相关操作"></a>表结构的相关操作</h3><div class="highlight-wrap"autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false" contenteditable="true"data-rel="BASH"><figure class="iseeu highlight /bash"><table><tr><td class="code"><pre><span class="line">1、创建表</span><br><span class="line">create table 表名（属性1 类型 约束，属性2 类型 [约束],...）；（不同字段间无空格）</span><br><span class="line"></span><br><span class="line">2、删除整张表</span><br><span class="line">drop tablename;</span><br><span class="line"></span><br><span class="line">3、查看创表语句</span><br><span class="line">show create table 表名；</span><br><span class="line"></span><br><span class="line">查看表结构：</span><br><span class="line">desc 表名；</span><br><span class="line"></span><br><span class="line">4、修改表（alter）-添加字段</span><br><span class="line">alter table tableName add 字段名 类型 约束；</span><br><span class="line"></span><br><span class="line">5、alter - 修改字段属性或约束</span><br><span class="line">alter table tableName modify 属性名 新类型 新约束；</span><br><span class="line"></span><br><span class="line">7、alter-修改字段</span><br><span class="line">alter table tableName change old属性名 new属性名 类型 约束；</span><br><span class="line"></span><br><span class="line">8、alter-删除字段</span><br><span class="line">alter table tableName drop 字段；</span><br></pre></td></tr></table></figure></div>]]></content>
+<h3 id="statefulset缩容时只会删除pod。不会删除持久卷声明（当一个声明被删除后，与之绑定的持久卷就会被回收和删除"><a href="#statefulset缩容时只会删除pod。不会删除持久卷声明（当一个声明被删除后，与之绑定的持久卷就会被回收和删除" class="headerlink" title="statefulset缩容时只会删除pod。不会删除持久卷声明（当一个声明被删除后，与之绑定的持久卷就会被回收和删除)"></a>statefulset缩容时只会删除pod。不会删除持久卷声明（当一个声明被删除后，与之绑定的持久卷就会被回收和删除)</h3><img src="/2021/06/15/%E5%85%B3%E4%BA%8EStatefulSet/delete_pvc.png" class="" title="[title]">
+
+<h3 id="在部署一个statefulset之前，需要创建一个用于在有状态的pod之间提供网络标识的headless-Service。clusterIP为none-标记了它是一个headless-Service"><a href="#在部署一个statefulset之前，需要创建一个用于在有状态的pod之间提供网络标识的headless-Service。clusterIP为none-标记了它是一个headless-Service" class="headerlink" title="在部署一个statefulset之前，需要创建一个用于在有状态的pod之间提供网络标识的headless Service。clusterIP为none,标记了它是一个headless Service"></a>在部署一个statefulset之前，需要创建一个用于在有状态的pod之间提供网络标识的headless Service。clusterIP为none,标记了它是一个headless Service</h3><img src="/2021/06/15/%E5%85%B3%E4%BA%8EStatefulSet/headless.png" class="" title="[title]">
+
+<h3 id="statefulset会在第一个pod就绪后才创建第二个pod副本，因为状态明确的集群应用对同时有两个集群成员启动引起的竞争情况是非常敏感的。所以依次启动每个成员是比较安全可靠的，特定的有状态应用集群在两个或多个集群成员同事启动所引起的竞态条件是非常敏感的，所以在每个成员完全启动后再启动剩下的会更加安全。"><a href="#statefulset会在第一个pod就绪后才创建第二个pod副本，因为状态明确的集群应用对同时有两个集群成员启动引起的竞争情况是非常敏感的。所以依次启动每个成员是比较安全可靠的，特定的有状态应用集群在两个或多个集群成员同事启动所引起的竞态条件是非常敏感的，所以在每个成员完全启动后再启动剩下的会更加安全。" class="headerlink" title="statefulset会在第一个pod就绪后才创建第二个pod副本，因为状态明确的集群应用对同时有两个集群成员启动引起的竞争情况是非常敏感的。所以依次启动每个成员是比较安全可靠的，特定的有状态应用集群在两个或多个集群成员同事启动所引起的竞态条件是非常敏感的，所以在每个成员完全启动后再启动剩下的会更加安全。"></a>statefulset会在第一个pod就绪后才创建第二个pod副本，因为状态明确的集群应用对同时有两个集群成员启动引起的竞争情况是非常敏感的。所以依次启动每个成员是比较安全可靠的，特定的有状态应用集群在两个或多个集群成员同事启动所引起的竞态条件是非常敏感的，所以在每个成员完全启动后再启动剩下的会更加安全。</h3><img src="/2021/06/15/%E5%85%B3%E4%BA%8EStatefulSet/%E9%87%8D%E6%96%B0%E8%B0%83%E5%BA%A6.png" class="" title="[title]">
+
+]]></content>
       <tags>
-        <tag>mysql</tag>
+        <tag>kubernetes</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>数据存储和读取</title>
+    <url>/2020/07/23/%E5%AD%98%E5%82%A8%E6%95%B0%E6%8D%AE/</url>
+    <content><![CDATA[<h2 id="使用json-dump-和json-load"><a href="#使用json-dump-和json-load" class="headerlink" title="使用json.dump()和json.load()"></a>使用json.dump()和json.load()</h2><h3 id="存储数据"><a href="#存储数据" class="headerlink" title="存储数据"></a>存储数据</h3><a id="more"></a>
+<div class="highlight-wrap"autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false" contenteditable="true"data-rel="BASH"><figure class="iseeu highlight /bash"><table><tr><td class="code"><pre><span class="line">import  json</span><br><span class="line"></span><br><span class="line">numbers = [2, 3, 5, 7, 11, 12]</span><br><span class="line"></span><br><span class="line">filename = <span class="string">"numbers.json"</span></span><br><span class="line">with open(filename, <span class="string">"w"</span>) as file_object:</span><br><span class="line">    json.dump(numbers, file_object)</span><br></pre></td></tr></table></figure></div>
+
+<h3 id="读取数据"><a href="#读取数据" class="headerlink" title="读取数据"></a>读取数据</h3><div class="highlight-wrap"autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false" contenteditable="true"data-rel="BASH"><figure class="iseeu highlight /bash"><table><tr><td class="code"><pre><span class="line">import json</span><br><span class="line"></span><br><span class="line">filename = <span class="string">"numbers.json"</span></span><br><span class="line"></span><br><span class="line">with open(filename, <span class="string">"r"</span>)  as file_object:</span><br><span class="line">    numbers = json.load(file_object)</span><br><span class="line">    <span class="built_in">print</span>(numbers)</span><br></pre></td></tr></table></figure></div>
+
+
+]]></content>
+      <tags>
+        <tag>python</tag>
       </tags>
   </entry>
   <entry>
@@ -240,28 +297,6 @@
 ]]></content>
       <tags>
         <tag>linux</tag>
-      </tags>
-  </entry>
-  <entry>
-    <title>关于StatefulSet</title>
-    <url>/2021/06/15/%E5%85%B3%E4%BA%8EStatefulSet/</url>
-    <content><![CDATA[<p>1.StatefulSet 为每个 Pod 副本创建了一个 DNS 域名，这个域名的格式为：</p>
-<div class="highlight-wrap"autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false" contenteditable="true"data-rel="BASH"><figure class="iseeu highlight /bash"><table><tr><td class="code"><pre><span class="line">$(podname).(headless servername)</span><br></pre></td></tr></table></figure></div>
-<p>也就意味着服务间是通过Pod域名来通信而非 Pod IP，因为当Pod所在Node发生故障时，Pod会被飘移到其它 Node 上，Pod IP 会发生变化，但是 Pod 域名不会有变化。</p>
-<a id="more"></a>
-<p>2.缩容一个statefulset会最先删除最高索引值的实例（要把一个statefulset从两个实例扩容到三个实例，那么新实例的索引值就会是2，现有实例使用索引值为0和1）。</p>
-<p>3.像statefulset创建pod一样，statefulset也需要创建持久卷声明。所以一个statefulset可以拥有一个或多个卷声明模板，这些持久卷声明会在创建pod前创建出来，绑定到一个pod实例上。</p>
-<img src="/2021/06/15/%E5%85%B3%E4%BA%8EStatefulSet/pv.png" class="" title="[title]">
-
-<h3 id="statefulset缩容时只会删除pod。不会删除持久卷声明（当一个声明被删除后，与之绑定的持久卷就会被回收和删除"><a href="#statefulset缩容时只会删除pod。不会删除持久卷声明（当一个声明被删除后，与之绑定的持久卷就会被回收和删除" class="headerlink" title="statefulset缩容时只会删除pod。不会删除持久卷声明（当一个声明被删除后，与之绑定的持久卷就会被回收和删除)"></a>statefulset缩容时只会删除pod。不会删除持久卷声明（当一个声明被删除后，与之绑定的持久卷就会被回收和删除)</h3><img src="/2021/06/15/%E5%85%B3%E4%BA%8EStatefulSet/delete_pvc.png" class="" title="[title]">
-
-<h3 id="在部署一个statefulset之前，需要创建一个用于在有状态的pod之间提供网络标识的headless-Service。clusterIP为none-标记了它是一个headless-Service"><a href="#在部署一个statefulset之前，需要创建一个用于在有状态的pod之间提供网络标识的headless-Service。clusterIP为none-标记了它是一个headless-Service" class="headerlink" title="在部署一个statefulset之前，需要创建一个用于在有状态的pod之间提供网络标识的headless Service。clusterIP为none,标记了它是一个headless Service"></a>在部署一个statefulset之前，需要创建一个用于在有状态的pod之间提供网络标识的headless Service。clusterIP为none,标记了它是一个headless Service</h3><img src="/2021/06/15/%E5%85%B3%E4%BA%8EStatefulSet/headless.png" class="" title="[title]">
-
-<h3 id="statefulset会在第一个pod就绪后才创建第二个pod副本，因为状态明确的集群应用对同时有两个集群成员启动引起的竞争情况是非常敏感的。所以依次启动每个成员是比较安全可靠的，特定的有状态应用集群在两个或多个集群成员同事启动所引起的竞态条件是非常敏感的，所以在每个成员完全启动后再启动剩下的会更加安全。"><a href="#statefulset会在第一个pod就绪后才创建第二个pod副本，因为状态明确的集群应用对同时有两个集群成员启动引起的竞争情况是非常敏感的。所以依次启动每个成员是比较安全可靠的，特定的有状态应用集群在两个或多个集群成员同事启动所引起的竞态条件是非常敏感的，所以在每个成员完全启动后再启动剩下的会更加安全。" class="headerlink" title="statefulset会在第一个pod就绪后才创建第二个pod副本，因为状态明确的集群应用对同时有两个集群成员启动引起的竞争情况是非常敏感的。所以依次启动每个成员是比较安全可靠的，特定的有状态应用集群在两个或多个集群成员同事启动所引起的竞态条件是非常敏感的，所以在每个成员完全启动后再启动剩下的会更加安全。"></a>statefulset会在第一个pod就绪后才创建第二个pod副本，因为状态明确的集群应用对同时有两个集群成员启动引起的竞争情况是非常敏感的。所以依次启动每个成员是比较安全可靠的，特定的有状态应用集群在两个或多个集群成员同事启动所引起的竞态条件是非常敏感的，所以在每个成员完全启动后再启动剩下的会更加安全。</h3><img src="/2021/06/15/%E5%85%B3%E4%BA%8EStatefulSet/%E9%87%8D%E6%96%B0%E8%B0%83%E5%BA%A6.png" class="" title="[title]">
-
-]]></content>
-      <tags>
-        <tag>kubernetes</tag>
       </tags>
   </entry>
   <entry>
@@ -337,41 +372,6 @@
 ]]></content>
       <tags>
         <tag>kubernetes</tag>
-      </tags>
-  </entry>
-  <entry>
-    <title>数据存储和读取</title>
-    <url>/2020/07/23/%E5%AD%98%E5%82%A8%E6%95%B0%E6%8D%AE/</url>
-    <content><![CDATA[<h2 id="使用json-dump-和json-load"><a href="#使用json-dump-和json-load" class="headerlink" title="使用json.dump()和json.load()"></a>使用json.dump()和json.load()</h2><h3 id="存储数据"><a href="#存储数据" class="headerlink" title="存储数据"></a>存储数据</h3><a id="more"></a>
-<div class="highlight-wrap"autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false" contenteditable="true"data-rel="BASH"><figure class="iseeu highlight /bash"><table><tr><td class="code"><pre><span class="line">import  json</span><br><span class="line"></span><br><span class="line">numbers = [2, 3, 5, 7, 11, 12]</span><br><span class="line"></span><br><span class="line">filename = <span class="string">"numbers.json"</span></span><br><span class="line">with open(filename, <span class="string">"w"</span>) as file_object:</span><br><span class="line">    json.dump(numbers, file_object)</span><br></pre></td></tr></table></figure></div>
-
-<h3 id="读取数据"><a href="#读取数据" class="headerlink" title="读取数据"></a>读取数据</h3><div class="highlight-wrap"autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false" contenteditable="true"data-rel="BASH"><figure class="iseeu highlight /bash"><table><tr><td class="code"><pre><span class="line">import json</span><br><span class="line"></span><br><span class="line">filename = <span class="string">"numbers.json"</span></span><br><span class="line"></span><br><span class="line">with open(filename, <span class="string">"r"</span>)  as file_object:</span><br><span class="line">    numbers = json.load(file_object)</span><br><span class="line">    <span class="built_in">print</span>(numbers)</span><br></pre></td></tr></table></figure></div>
-
-
-]]></content>
-      <tags>
-        <tag>python</tag>
-      </tags>
-  </entry>
-  <entry>
-    <title>python-unittest</title>
-    <url>/2020/07/27/python-unittest/</url>
-    <content><![CDATA[<h2 id="类的测试"><a href="#类的测试" class="headerlink" title="类的测试"></a>类的测试</h2><h3 id="import-unittest导入unittest模块"><a href="#import-unittest导入unittest模块" class="headerlink" title="import unittest导入unittest模块"></a>import unittest导入unittest模块</h3><h3 id="定义一个继承自unittest-TestCase的测试用例类-class-TestSurvey-unittest-TestCase"><a href="#定义一个继承自unittest-TestCase的测试用例类-class-TestSurvey-unittest-TestCase" class="headerlink" title="定义一个继承自unittest.TestCase的测试用例类 class TestSurvey(unittest.TestCase)"></a>定义一个继承自unittest.TestCase的测试用例类 class TestSurvey(unittest.TestCase)</h3><p>unittest类包含方法setUp()，只需要创建一次对象，就可以在每个测试方法中使用它们</p>
-<a id="more"></a>
-<p>如果在TestCase类中包含了方法setUp(),python将先运行它，再运行各个以test_开头的方法，这样编写的每个测试方法中都可使用在setUp()中创建的对象了<br>定义测试用例，名字以test开头，unittest会自动将test开头的方法放入测试用例集中</p>
-<p>调用unittest.main()启动测试</p>
-<div class="highlight-wrap"autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false" contenteditable="true"data-rel="BASH"><figure class="iseeu highlight /bash"><table><tr><td class="code"><pre><span class="line">assertEqual(a, b)          a == b</span><br><span class="line"></span><br><span class="line">assertNotEqual(a, b)       a != b</span><br><span class="line"></span><br><span class="line">assertTrue(x)              bool(x) is True</span><br><span class="line"></span><br><span class="line">assertFalse(x)             bool(x) is False</span><br><span class="line"></span><br><span class="line">assertIs(a, b)             a is b</span><br><span class="line"></span><br><span class="line">assertIsNot(a, b)          a is not b</span><br><span class="line"></span><br><span class="line">assertIsNone(x)            x is None</span><br><span class="line"></span><br><span class="line">assertIsNotNone(x)         x is not None</span><br><span class="line"></span><br><span class="line">assertIn(item, list)       item <span class="keyword">in</span> list</span><br><span class="line"></span><br><span class="line">assertNotIn(item, list)    item not <span class="keyword">in</span> list</span><br><span class="line"></span><br><span class="line">assertIsInstance(a, b)     isinstance(a, b)</span><br><span class="line"></span><br><span class="line">assertNotIsInstance(a, b)  not isinstance(a, b)</span><br></pre></td></tr></table></figure></div>
-<h3 id="类测试案例"><a href="#类测试案例" class="headerlink" title="类测试案例"></a>类测试案例</h3><div class="highlight-wrap"autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false" contenteditable="true"data-rel="BASH"><figure class="iseeu highlight /bash"><table><tr><td class="code"><pre><span class="line">class AnonymousSurvey():</span><br><span class="line">    <span class="string">""</span><span class="string">"收集匿名调查问卷的答案"</span><span class="string">""</span></span><br><span class="line">    def __init__(self, question):</span><br><span class="line">        <span class="string">""</span><span class="string">"存储一个问题，并为存储答案做准备"</span><span class="string">""</span></span><br><span class="line"></span><br><span class="line">        self.question = question</span><br><span class="line">        self.responses = []</span><br><span class="line"></span><br><span class="line">    def show_question(self):</span><br><span class="line">        <span class="comment"># 显示调查问卷</span></span><br><span class="line">        <span class="built_in">print</span>(self.question)</span><br><span class="line"></span><br><span class="line">    def store_responses(self, new_respones):</span><br><span class="line">        <span class="string">""</span><span class="string">"存储单份调查问卷"</span><span class="string">""</span></span><br><span class="line">        self.responses.append(new_respones)</span><br><span class="line"></span><br><span class="line">    def show_result(self):</span><br><span class="line">        <span class="string">""</span><span class="string">"显示收集到的所以信息"</span><span class="string">""</span></span><br><span class="line">        <span class="built_in">print</span>(<span class="string">"survey result:"</span>)</span><br><span class="line">        <span class="keyword">for</span> response <span class="keyword">in</span> self.responses:</span><br><span class="line">            <span class="built_in">print</span>(<span class="string">"- "</span> + response)</span><br><span class="line">        <span class="built_in">print</span>(self.responses)</span><br></pre></td></tr></table></figure></div>
-
-
-
-<p>关于survey的测试用例</p>
-<p>test_survey.py</p>
-<div class="highlight-wrap"autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false" contenteditable="true"data-rel="BASH"><figure class="iseeu highlight /bash"><table><tr><td class="code"><pre><span class="line">import unittest</span><br><span class="line">from survey import AnonymousSurvey</span><br><span class="line"></span><br><span class="line">class TestSurvey(unittest.TestCase):</span><br><span class="line">    <span class="string">""</span><span class="string">"争对AnonymousSurvey类的测试"</span><span class="string">""</span></span><br><span class="line">    def setUp(self):</span><br><span class="line">        <span class="string">""</span><span class="string">"创建一个调查对象和一组答案，供使用的测试方法使用"</span><span class="string">""</span></span><br><span class="line">        question = <span class="string">"what language did you first learn to speak?"</span></span><br><span class="line">        self.my_survey = AnonymousSurvey(question)</span><br><span class="line">        self.responses = [<span class="string">"English"</span>, <span class="string">"Spanish"</span>, <span class="string">"Mandarin"</span>]</span><br><span class="line"></span><br><span class="line">    def test_store_single_response(self):</span><br><span class="line">        <span class="string">""</span><span class="string">"测试单个答案存储"</span><span class="string">""</span></span><br><span class="line">        <span class="comment"># question = "what language did you first learn to speak?"</span></span><br><span class="line">        <span class="comment"># my_survey = AnonymousSurvey(question)</span></span><br><span class="line">        self.my_survey.store_responses(self.responses[1])</span><br><span class="line"></span><br><span class="line">        self.assertIn(self.responses[1], self.my_survey.responses)</span><br><span class="line"></span><br><span class="line">    def test_store_three_responses(self):</span><br><span class="line">        <span class="string">""</span><span class="string">"测试三个答案存储"</span><span class="string">""</span></span><br><span class="line">        <span class="comment"># question = "what language did you first learn to speak?"</span></span><br><span class="line">        <span class="comment"># my_survey = AnonymousSurvey(question)</span></span><br><span class="line">        <span class="comment"># responses = ["English", "Spanish", "Mandarin"]</span></span><br><span class="line">        <span class="keyword">for</span> response <span class="keyword">in</span> self.responses:</span><br><span class="line">            self.my_survey.store_responses(response)</span><br><span class="line"></span><br><span class="line">        <span class="keyword">for</span> response <span class="keyword">in</span> self.responses:</span><br><span class="line">            self.assertIn(response, self.my_survey.responses)</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="keyword">if</span> __name__ == <span class="string">'__main__'</span>:</span><br><span class="line">    unittest.main()</span><br></pre></td></tr></table></figure></div>
-<p>测试效果</p>
-<img src="/2020/07/27/python-unittest/%E6%B5%8B%E8%AF%95%E6%95%88%E6%9E%9C.png" class="" title="[title]">]]></content>
-      <tags>
-        <tag>python</tag>
       </tags>
   </entry>
 </search>
