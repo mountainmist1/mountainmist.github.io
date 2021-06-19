@@ -1,0 +1,554 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+<meta name="generator" content="Hexo 4.2.1">
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/1.jpg">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+
+<link rel="stylesheet" href="//cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@5.14.0/css/all.min.css">
+  <link rel="stylesheet" href="//cdn.jsdelivr.net/npm/animate.css@3.1.1/animate.min.css">
+
+<script class="hexo-configurations">
+    var NexT = window.NexT || {};
+    var CONFIG = {"hostname":"www.mountainmist.work","root":"/","scheme":"Gemini","version":"8.0.0","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12},"copycode":true,"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"fadeInDown","post_body":"fadeInDown","coll_header":"fadeInLeft","sidebar":"fadeInUp"}},"i18n":{"placeholder":"搜索...","empty":"没有找到任何搜索结果：${query}","hits_time":"找到 ${hits} 个搜索结果（用时 ${time} 毫秒）","hits":"找到 ${hits} 个搜索结果"},"path":"search.xml","localsearch":{"enable":true,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false}};
+  </script>
+
+  <meta name="description" content="理解初始容器一个pod里可以运行多个容器,它也可以运行一个或者多个初始容器,初始容器先于应用容器运行,除了以下两点外,初始容器和普通容器没有什么两样:  它们总是run to completion 一个初始容器必须成功运行另一个才能运行">
+<meta property="og:type" content="article">
+<meta property="og:title" content="关于初始容器">
+<meta property="og:url" content="http://www.mountainmist.work/2021/06/17/%E5%85%B3%E4%BA%8E%E5%88%9D%E5%A7%8B%E5%AE%B9%E5%99%A8/index.html">
+<meta property="og:site_name" content="Snowball&#39;s Blog">
+<meta property="og:description" content="理解初始容器一个pod里可以运行多个容器,它也可以运行一个或者多个初始容器,初始容器先于应用容器运行,除了以下两点外,初始容器和普通容器没有什么两样:  它们总是run to completion 一个初始容器必须成功运行另一个才能运行">
+<meta property="og:locale" content="zh_CN">
+<meta property="article:published_time" content="2021-06-17T07:36:51.000Z">
+<meta property="article:modified_time" content="2021-06-17T08:07:12.296Z">
+<meta property="article:author" content="Snowball">
+<meta property="article:tag" content="kubernetes">
+<meta name="twitter:card" content="summary">
+
+
+<link rel="canonical" href="http://www.mountainmist.work/2021/06/17/%E5%85%B3%E4%BA%8E%E5%88%9D%E5%A7%8B%E5%AE%B9%E5%99%A8/">
+
+
+<script class="page-configurations">
+  // https://hexo.io/docs/variables.html
+  CONFIG.page = {
+    sidebar: "",
+    isHome : false,
+    isPost : true,
+    lang   : 'zh-CN'
+  };
+</script>
+
+  <title>关于初始容器 | Snowball's Blog</title>
+  
+
+
+
+
+
+
+  <noscript>
+  <style>
+  body { margin-top: 2rem; }
+
+  .use-motion .menu-item,
+  .use-motion .sidebar,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-header {
+    visibility: visible;
+  }
+
+  .use-motion .header,
+  .use-motion .site-brand-container .toggle,
+  .use-motion .footer { opacity: initial; }
+
+  .use-motion .site-title,
+  .use-motion .site-subtitle,
+  .use-motion .custom-logo-image {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line {
+    transform: scaleX(1);
+  }
+
+  .search-pop-overlay, .sidebar-nav { display: none; }
+  .sidebar-panel { display: block; }
+  </style>
+</noscript>
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" class="use-motion">
+  <div class="headband"></div>
+
+  <main class="main">
+    <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="切换导航栏">
+        <span class="toggle-line"></span>
+        <span class="toggle-line"></span>
+        <span class="toggle-line"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <i class="logo-line"></i>
+      <h1 class="site-title">Snowball's Blog</h1>
+      <i class="logo-line"></i>
+    </a>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger">
+        <i class="fa fa-search fa-fw fa-lg"></i>
+    </div>
+  </div>
+</div>
+
+
+
+<nav class="site-nav">
+  <ul class="main-menu menu">
+        <li class="menu-item menu-item-home">
+
+    <a href="/" rel="section"><i class="fa fa-home fa-fw"></i>首页</a>
+
+  </li>
+        <li class="menu-item menu-item-about">
+
+    <a href="/about/" rel="section"><i class="fa fa-user fa-fw"></i>关于</a>
+
+  </li>
+        <li class="menu-item menu-item-tags">
+
+    <a href="/tags/" rel="section"><i class="fa fa-tags fa-fw"></i>标签</a>
+
+  </li>
+        <li class="menu-item menu-item-categories">
+
+    <a href="/categories/" rel="section"><i class="fa fa-th fa-fw"></i>分类</a>
+
+  </li>
+        <li class="menu-item menu-item-archives">
+
+    <a href="/archives/" rel="section"><i class="fa fa-archive fa-fw"></i>归档</a>
+
+  </li>
+        <li class="menu-item menu-item-schedule">
+
+    <a href="/schedule/" rel="section"><i class="fa fa-calendar fa-fw"></i>日程表</a>
+
+  </li>
+        <li class="menu-item menu-item-sitemap">
+
+    <a href="/sitemap.xml" rel="section"><i class="fa fa-sitemap fa-fw"></i>站点地图</a>
+
+  </li>
+        <li class="menu-item menu-item-commonweal">
+
+    <a href="/404/" rel="section"><i class="fa fa-heartbeat fa-fw"></i>公益 404</a>
+
+  </li>
+      <li class="menu-item menu-item-search">
+        <a role="button" class="popup-trigger"><i class="fa fa-search fa-fw"></i>搜索
+        </a>
+      </li>
+  </ul>
+</nav>
+
+
+
+  <div class="search-pop-overlay">
+    <div class="popup search-popup">
+        <div class="search-header">
+  <span class="search-icon">
+    <i class="fa fa-search"></i>
+  </span>
+  <div class="search-input-container">
+    <input autocomplete="off" autocapitalize="off" maxlength="80"
+           placeholder="搜索..." spellcheck="false"
+           type="search" class="search-input">
+  </div>
+  <span class="popup-btn-close">
+    <i class="fa fa-times-circle"></i>
+  </span>
+</div>
+<div class="search-result-container no-result">
+  <div class="search-result-icon">
+    <i class="fa fa-spinner fa-pulse fa-5x"></i>
+  </div>
+</div>
+
+    </div>
+  </div>
+
+</div>
+        
+  
+  <div class="toggle sidebar-toggle">
+    <span class="toggle-line"></span>
+    <span class="toggle-line"></span>
+    <span class="toggle-line"></span>
+  </div>
+
+  <aside class="sidebar">
+
+    <div class="sidebar-inner sidebar-nav-active sidebar-toc-active">
+      <ul class="sidebar-nav">
+        <li class="sidebar-nav-toc">
+          文章目录
+        </li>
+        <li class="sidebar-nav-overview">
+          站点概览
+        </li>
+      </ul>
+
+      <!--noindex-->
+      <section class="post-toc-wrap sidebar-panel">
+          <div class="post-toc animated"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#理解初始容器"><span class="nav-number">1.</span> <span class="nav-text">理解初始容器</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#初始容器和普通容器的不同"><span class="nav-number">2.</span> <span class="nav-text">初始容器和普通容器的不同</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#初始容器能做什么"><span class="nav-number">3.</span> <span class="nav-text">初始容器能做什么</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#初始容器使用"><span class="nav-number">4.</span> <span class="nav-text">初始容器使用</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#行为细节"><span class="nav-number">5.</span> <span class="nav-text">行为细节</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#资源"><span class="nav-number">6.</span> <span class="nav-text">资源</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#pod重启原因"><span class="nav-number">7.</span> <span class="nav-text">pod重启原因</span></a></li></ol></div>
+      </section>
+      <!--/noindex-->
+
+      <section class="site-overview-wrap sidebar-panel">
+        <div class="site-author animated" itemprop="author" itemscope itemtype="http://schema.org/Person">
+    <img class="site-author-image" itemprop="image" alt="Snowball"
+      src="/images/1.jpg">
+  <p class="site-author-name" itemprop="name">Snowball</p>
+  <div class="site-description" itemprop="description">Snowball的博客</div>
+</div>
+<div class="site-state-wrap animated">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+          <a href="/archives/">
+        
+          <span class="site-state-item-count">16</span>
+          <span class="site-state-item-name">日志</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-tags">
+        <span class="site-state-item-count">8</span>
+        <span class="site-state-item-name">标签</span>
+      </div>
+  </nav>
+</div>
+
+
+
+      </section>
+    </div>
+  </aside>
+  <div class="sidebar-dimmer"></div>
+
+
+    </header>
+
+    
+  <div class="back-to-top">
+    <i class="fa fa-arrow-up"></i>
+    <span>0%</span>
+  </div>
+
+<noscript>
+  <div class="noscript-warning">Theme NexT works best with JavaScript enabled</div>
+</noscript>
+
+
+    <div class="main-inner post posts-expand">
+      
+
+      
+
+    
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="http://www.mountainmist.work/2021/06/17/%E5%85%B3%E4%BA%8E%E5%88%9D%E5%A7%8B%E5%AE%B9%E5%99%A8/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/1.jpg">
+      <meta itemprop="name" content="Snowball">
+      <meta itemprop="description" content="Snowball的博客">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Snowball's Blog">
+    </span>
+
+    
+    
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          关于初始容器
+        </h1>
+
+        <div class="post-meta-container">
+          <div class="post-meta">
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar"></i>
+      </span>
+      <span class="post-meta-item-text">发表于</span>
+      
+
+      <time title="创建时间：2021-06-17 15:36:51 / 修改时间：16:07:12" itemprop="dateCreated datePublished" datetime="2021-06-17T15:36:51+08:00">2021-06-17</time>
+    </span>
+
+  
+  
+  <span class="post-meta-item">
+    
+      <span class="post-meta-item-icon">
+        <i class="far fa-comment"></i>
+      </span>
+      <span class="post-meta-item-text">Valine：</span>
+    
+    <a title="valine" href="/2021/06/17/%E5%85%B3%E4%BA%8E%E5%88%9D%E5%A7%8B%E5%AE%B9%E5%99%A8/#valine-comments" itemprop="discussionUrl">
+      <span class="post-comments-count valine-comment-count" data-xid="/2021/06/17/%E5%85%B3%E4%BA%8E%E5%88%9D%E5%A7%8B%E5%AE%B9%E5%99%A8/" itemprop="commentCount"></span>
+    </a>
+  </span>
+  
+  
+</div>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+        <h2 id="理解初始容器"><a href="#理解初始容器" class="headerlink" title="理解初始容器"></a>理解初始容器</h2><p>一个pod里可以运行多个容器,它也可以运行一个或者多个初始容器,初始容器先于应用容器运行,除了以下两点外,初始容器和普通容器没有什么两样:</p>
+<ul>
+<li>它们总是run to completion</li>
+<li>一个初始容器必须成功运行另一个才能运行</li>
+</ul>
+<a id="more"></a>
+
+<p>如果pod中的一个初始容器运行失败,则kubernetes会尝试重启pod直到初始容器成功运行,如果pod的重启策略设置为从不(never),则不会重启.</p>
+<p>创建容器时,在pod spec里添加initContainers字段,则指定容器即为初始容器,它们的返回状态作为数组保存在.status.initContainerStatuses里(与普通容器状态存储字段.status.containerStatuses类似)</p>
+<h2 id="初始容器和普通容器的不同"><a href="#初始容器和普通容器的不同" class="headerlink" title="初始容器和普通容器的不同"></a>初始容器和普通容器的不同</h2><p>初始容器支持所有普通容器的特征,包括资源配额限制和存储卷以及安全设置.但是对资源申请和限制处理初始容器略有不同,下面会介绍.此外,初始容器不支持可用性探针(readiness probe),因为它在ready之前必须run to completion</p>
+<p>如果在一个pod里指定了多个初始容器,则它们会依次启动起来(pod内的普通容器并行启动),并且只有上一个成功下一个才能启动.当所有的初始容器都启动了,kubernetes才开始启普通应用容器.</p>
+<h2 id="初始容器能做什么"><a href="#初始容器能做什么" class="headerlink" title="初始容器能做什么"></a>初始容器能做什么</h2><p>由于初始容器和普通应用容器是分开的镜像,因此他在做一些初始化工作很有优势</p>
+<ul>
+<li>它们可以包含并且运行一些出于安全考虑不适合和应用放在一块的小工具.</li>
+<li>它们可以一些小工具和自定义代码来做些初始化工作,这样就不需要在普通应用容器里使用sed,awk,python或者dig来做初始化工作了</li>
+<li>应用构建者和发布者可以独立工作,而不必再联合起来处理同一个pod</li>
+<li>它们使用linux namespaces因此它们和普通应用pod拥有不同的文件系统视图.因此他们可以被赋予普通应用容器获取不到的secrets</li>
+<li>它们在应用容器启动前运行,因此它们可以阻止或者延缓普通应用容器的初始化直到需要的条件满足</li>
+</ul>
+<p>示例:</p>
+<ul>
+<li>通过执行shell命令来等待一个服务创建完成,命令如下:</li>
+</ul>
+<div class="highlight-wrap"autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false" contenteditable="true"data-rel="BASH"><figure class="iseeu highlight /bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">for</span> i <span class="keyword">in</span> &#123;1..100&#125;; <span class="keyword">do</span> sleep 1; <span class="keyword">if</span> dig myservice; <span class="keyword">then</span> <span class="built_in">exit</span> 0; <span class="keyword">fi</span>; <span class="keyword">done</span>; <span class="built_in">exit</span> 1</span><br></pre></td></tr></table></figure></div>
+
+<ul>
+<li>通过downward API把当前pod注册到远程服务器,命令如下:</li>
+</ul>
+<div class="highlight-wrap"autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false" contenteditable="true"data-rel="PLAIN"><figure class="iseeu highlight /plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">curl -X POST http:&#x2F;&#x2F;$MANAGEMENT_SERVICE_HOST:$MANAGEMENT_SERVICE_PORT&#x2F;register -d &#39;instance&#x3D;$(&lt;POD_NAME&gt;)&amp;ip&#x3D;$(&lt;POD_IP&gt;)&#39;</span><br></pre></td></tr></table></figure></div>
+
+<ul>
+<li>在容器启动之前等待一定时间:例如sleep 60</li>
+<li>克隆一个git仓库到存储目录</li>
+<li>通过模板工具动态把一些值写入到主应用程序的配置文件里</li>
+</ul>
+<h2 id="初始容器使用"><a href="#初始容器使用" class="headerlink" title="初始容器使用"></a>初始容器使用</h2><div class="highlight-wrap"autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false" contenteditable="true"data-rel="YAML"><figure class="iseeu highlight /yaml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br></pre></td><td class="code"><pre><span class="line"><span class="attr">apiVersion:</span> <span class="string">v1</span></span><br><span class="line"><span class="attr">kind:</span> <span class="string">Pod</span></span><br><span class="line"><span class="attr">metadata:</span></span><br><span class="line">  <span class="attr">name:</span> <span class="string">myapp-pod</span></span><br><span class="line">  <span class="attr">labels:</span></span><br><span class="line">    <span class="attr">app:</span> <span class="string">myapp</span></span><br><span class="line"><span class="attr">spec:</span></span><br><span class="line">  <span class="attr">containers:</span></span><br><span class="line">  <span class="bullet">-</span> <span class="attr">name:</span> <span class="string">myapp-container</span></span><br><span class="line">    <span class="attr">image:</span> <span class="string">busybox</span></span><br><span class="line">    <span class="attr">command:</span> <span class="string">['sh',</span> <span class="string">'-c'</span><span class="string">,</span> <span class="string">'echo The app is running! &amp;&amp; sleep 3600'</span><span class="string">]</span></span><br><span class="line">  <span class="attr">initContainers:</span></span><br><span class="line">  <span class="bullet">-</span> <span class="attr">name:</span> <span class="string">init-myservice</span></span><br><span class="line">    <span class="attr">image:</span> <span class="string">busybox</span></span><br><span class="line">    <span class="attr">command:</span> <span class="string">['sh',</span> <span class="string">'-c'</span><span class="string">,</span> <span class="string">'until nslookup myservice; do echo waiting for myservice; sleep 2; done;'</span><span class="string">]</span></span><br><span class="line">  <span class="bullet">-</span> <span class="attr">name:</span> <span class="string">init-mydb</span></span><br><span class="line">    <span class="attr">image:</span> <span class="string">busybox</span></span><br><span class="line">    <span class="attr">command:</span> <span class="string">['sh',</span> <span class="string">'-c'</span><span class="string">,</span> <span class="string">'until nslookup mydb; do echo waiting for mydb; sleep 2; done;'</span><span class="string">]</span></span><br></pre></td></tr></table></figure></div>
+
+<p>以上pod定义包含两个初始容器,第一个等待myservice服务可用,第二个等待mydb服务可用,这两个pod执行完成,应用容器开始执行.</p>
+<p>下面是myservice和mydb两个服务的yaml文件</p>
+<div class="highlight-wrap"autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false" contenteditable="true"data-rel="YAML"><figure class="iseeu highlight /yaml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br></pre></td><td class="code"><pre><span class="line"><span class="attr">kind:</span> <span class="string">Service</span></span><br><span class="line"><span class="attr">apiVersion:</span> <span class="string">v1</span></span><br><span class="line"><span class="attr">metadata:</span></span><br><span class="line">  <span class="attr">name:</span> <span class="string">myservice</span></span><br><span class="line"><span class="attr">spec:</span></span><br><span class="line">  <span class="attr">ports:</span></span><br><span class="line">  <span class="bullet">-</span> <span class="attr">protocol:</span> <span class="string">TCP</span></span><br><span class="line">    <span class="attr">port:</span> <span class="number">80</span></span><br><span class="line">    <span class="attr">targetPort:</span> <span class="number">9376</span></span><br><span class="line"><span class="meta">---</span></span><br><span class="line"><span class="attr">kind:</span> <span class="string">Service</span></span><br><span class="line"><span class="attr">apiVersion:</span> <span class="string">v1</span></span><br><span class="line"><span class="attr">metadata:</span></span><br><span class="line">  <span class="attr">name:</span> <span class="string">mydb</span></span><br><span class="line"><span class="attr">spec:</span></span><br><span class="line">  <span class="attr">ports:</span></span><br><span class="line">  <span class="bullet">-</span> <span class="attr">protocol:</span> <span class="string">TCP</span></span><br><span class="line">    <span class="attr">port:</span> <span class="number">80</span></span><br><span class="line">    <span class="attr">targetPort:</span> <span class="number">9377</span></span><br></pre></td></tr></table></figure></div>
+
+<h2 id="行为细节"><a href="#行为细节" class="headerlink" title="行为细节"></a>行为细节</h2><ul>
+<li>在启动pod的过程中,在存储卷和网络创建以后,初始容器依次创建.上一个容器必须返回成功下一个才能启动,如果由于运行时错误或者其它异常退出,它会依照restartPolicy来重试,然而,如果restartPolicy设置为Always,初始容器实际上使用的是OnFailure策略</li>
+<li>如果pod重启了,则所有的初始容器要重新执行</li>
+<li>对初始容器的spec的更改仅限于镜像(image)字段的修改,更改了初始容器的镜像字段相当于重启pod</li>
+<li>由于初始容器可以被重启,重试和重新执行,因此它里面的代码应当是幂等的,尤其是写入文件到EmptyDirs的代码应当注意文件可能已经存在</li>
+<li>容器中的所有初始容器和普通容器名称必须惟一.</li>
+</ul>
+<h2 id="资源"><a href="#资源" class="headerlink" title="资源"></a><strong>资源</strong></h2><p>基于初始容器的执行顺序,以下关于资源的规则适用:</p>
+<ul>
+<li><p>对于特定资源,所有初始容器申请的最高的生效</p>
+</li>
+<li><p>对于pod,相同资源申请取以下两者较高的一个:</p>
+</li>
+<li><ol>
+<li>所有普通应用容器申请的资源总和</li>
+<li>初始容器申请的生效的资源(上面说到,初始容器申请资源取所有初始容器申请最大的一个)</li>
+</ol>
+</li>
+<li><p>调度基于生效的初始请求,这就意味着初始容器可以申请预留资源,即便在pod以后的整个生命周期都用不到</p>
+</li>
+</ul>
+<h2 id="pod重启原因"><a href="#pod重启原因" class="headerlink" title="pod重启原因"></a><strong>pod重启原因</strong></h2><p>一个pod基于以下列出的原因,会重启,重新执行初始容器:</p>
+<ul>
+<li>用户更新初始容器的PodSpec导致镜像发生改变.普通应用容器改变只会使应用容器重启</li>
+<li>由于restartPolicy被设置为Always,导致所有容器均被中止,强制重启,由于垃圾回收初始容器的初始状态记录丢失</li>
+</ul>
+
+    </div>
+
+    
+    
+    
+
+    <footer class="post-footer">
+          <div class="post-tags">
+              <a href="/tags/kubernetes/" rel="tag"># kubernetes</a>
+          </div>
+
+        
+
+          <div class="post-nav">
+            <div class="post-nav-item">
+                <a href="/2021/06/15/%E5%85%B3%E4%BA%8EStatefulSet/" rel="prev" title="关于StatefulSet">
+                  <i class="fa fa-chevron-left"></i> 关于StatefulSet
+                </a>
+            </div>
+            <div class="post-nav-item">
+                <a href="/2021/06/18/%E5%85%B3%E4%BA%8Eexpect/" rel="next" title="关于expect">
+                  关于expect <i class="fa fa-chevron-right"></i>
+                </a>
+            </div>
+          </div>
+    </footer>
+  </article>
+  
+  
+  
+
+
+
+      
+    <div class="comments" id="valine-comments"></div>
+
+<script>
+  window.addEventListener('tabs:register', () => {
+    let { activeClass } = CONFIG.comments;
+    if (CONFIG.comments.storage) {
+      activeClass = localStorage.getItem('comments_active') || activeClass;
+    }
+    if (activeClass) {
+      const activeTab = document.querySelector(`a[href="#comment-${activeClass}"]`);
+      if (activeTab) {
+        activeTab.click();
+      }
+    }
+  });
+  if (CONFIG.comments.storage) {
+    window.addEventListener('tabs:click', event => {
+      if (!event.target.matches('.tabs-comment .tab-content .tab-pane')) return;
+      const commentClass = event.target.classList[1];
+      localStorage.setItem('comments_active', commentClass);
+    });
+  }
+</script>
+
+    </div>
+  </main>
+
+  <footer class="footer">
+    <div class="footer-inner">
+      
+
+      <!-- 网站运行时间的设置 -->
+<span id="timeDate">载入天数...</span><span id="times">载入时分秒...</span>
+<script>
+    var now = new Date();
+    function createtime() {
+        var grt= new Date("03/09/2020 13:14:21");//此处修改你的建站时间或者网站上线时间
+        now.setTime(now.getTime()+250);
+        days = (now - grt ) / 1000 / 60 / 60 / 24; dnum = Math.floor(days);
+        hours = (now - grt ) / 1000 / 60 / 60 - (24 * dnum); hnum = Math.floor(hours);
+        if(String(hnum).length ==1 ){hnum = "0" + hnum;} minutes = (now - grt ) / 1000 /60 - (24 * 60 * dnum) - (60 * hnum);
+        mnum = Math.floor(minutes); if(String(mnum).length ==1 ){mnum = "0" + mnum;}
+        seconds = (now - grt ) / 1000 - (24 * 60 * 60 * dnum) - (60 * 60 * hnum) - (60 * mnum);
+        snum = Math.round(seconds); if(String(snum).length ==1 ){snum = "0" + snum;}
+        document.getElementById("timeDate").innerHTML = "本站已安全运行 "+dnum+" 天 ";
+        document.getElementById("times").innerHTML = hnum + " 小时 " + mnum + " 分 " + snum + " 秒";
+    }
+setInterval("createtime()",250);
+</script>
+
+<div class="copyright">
+  
+  &copy; 
+  <span itemprop="copyrightYear">2021</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">Snowball</span>
+</div>
+  <div class="powered-by">由 <a href="https://hexo.io/" class="theme-link" rel="noopener" target="_blank">Hexo</a> & <a href="https://theme-next.js.org/" class="theme-link" rel="noopener" target="_blank">NexT.Gemini</a> 强力驱动
+  </div>
+
+
+    </div>
+  </footer>
+
+  
+  <script src="//cdn.jsdelivr.net/npm/animejs@3.2.0/lib/anime.min.js"></script>
+<script src="/js/utils.js"></script><script src="/js/motion.js"></script><script src="/js/next-boot.js"></script>
+
+  
+
+
+
+
+  <script src="/js/local-search.js"></script>
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+  
+
+  
+<script>
+NexT.utils.loadComments('#valine-comments', () => {
+  NexT.utils.getScript('//cdn.jsdelivr.net/npm/valine@1.4.14/dist/Valine.min.js', () => {
+    new Valine(Object.assign({
+      el  : '#valine-comments',
+      path: "/2021/06/17/%E5%85%B3%E4%BA%8E%E5%88%9D%E5%A7%8B%E5%AE%B9%E5%99%A8/",
+    }, {"enable":true,"appId":"rrQUgiFKNCV2YWruSmHjmbkj-gzGzoHsz","appKey":"9mgBFxjS5kuKotQHXqXgYB26","placeholder":"Just go go","avatar":"mm","meta":["nick","mail","link"],"pageSize":10,"lang":null,"visitor":false,"comment_count":true,"recordIP":false,"serverURLs":null,"enableQQ":false,"requiredFields":[]}
+    ));
+  }, window.Valine);
+});
+</script>
+
+</body>
+</html>
