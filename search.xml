@@ -12,6 +12,41 @@
       </tags>
   </entry>
   <entry>
+    <title>docx模块小记</title>
+    <url>/2021/06/23/docx%E6%A8%A1%E5%9D%97%E5%B0%8F%E8%AE%B0/</url>
+    <content><![CDATA[<p><em>docx</em>是一个用于创建和修改 Microsoft Word (.docx) 文件的 Python 库。</p>
+<a id="more"></a>
+
+<p>下面是一个<code>python-docx</code>可以做什么的例子：</p>
+<p>编辑一个已存在的docx文档</p>
+<div class="highlight-wrap"autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false" contenteditable="true"data-rel="PLAIN"><figure class="iseeu highlight /plain"><table><tr><td class="code"><pre><span class="line">document &#x3D; Document(r&quot;C:\Users\Administrator\Desktop\副本.docx&quot;)</span><br></pre></td></tr></table></figure></div>
+
+<h3 id="获取图片所在路径"><a href="#获取图片所在路径" class="headerlink" title="获取图片所在路径"></a>获取图片所在路径</h3><div class="highlight-wrap"autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false" contenteditable="true"data-rel="PYTHON"><figure class="iseeu highlight /python"><table><tr><td class="code"><pre><span class="line">list_file = os.listdir(directory)</span><br><span class="line">    <span class="keyword">for</span> i <span class="keyword">in</span> range(<span class="number">0</span>, len(list_file)):</span><br><span class="line">        <span class="comment"># 构造绝对路径</span></span><br><span class="line">        path = os.path.join(directory, list_file[i])</span><br><span class="line">        <span class="comment"># 判断路径是否是一个文件目录或者文件</span></span><br><span class="line">        <span class="comment"># 如果是文件目录，继续递归</span></span><br><span class="line">        <span class="keyword">if</span> os.path.isdir(path):</span><br><span class="line">            files.extend(path)</span><br><span class="line">        <span class="keyword">if</span> os.path.isfile(path):</span><br><span class="line">            files.append(path)</span><br><span class="line">    <span class="keyword">return</span> files</span><br></pre></td></tr></table></figure></div>
+
+<img src="/2021/06/23/docx%E6%A8%A1%E5%9D%97%E5%B0%8F%E8%AE%B0/file.png" class="" title="[title]">
+
+<h3 id="目录按照文件的修改时间进行排序"><a href="#目录按照文件的修改时间进行排序" class="headerlink" title="目录按照文件的修改时间进行排序"></a>目录按照文件的修改时间进行排序</h3><div class="highlight-wrap"autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false" contenteditable="true"data-rel="PYTHON"><figure class="iseeu highlight /python"><table><tr><td class="code"><pre><span class="line">dir_lists = sorted(files, key=<span class="keyword">lambda</span> x: os.path.getmtime(os.path.join(file_path, x)))</span><br></pre></td></tr></table></figure></div>
+
+<h3 id="对各项图片进行分类"><a href="#对各项图片进行分类" class="headerlink" title="对各项图片进行分类"></a>对各项图片进行分类</h3><div class="highlight-wrap"autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false" contenteditable="true"data-rel="PYTHON"><figure class="iseeu highlight /python"><table><tr><td class="code"><pre><span class="line">alarm_list = []</span><br><span class="line">    alarm_dict = &#123;</span><br><span class="line">        <span class="string">"disk"</span>: <span class="string">"Disk"</span>,</span><br><span class="line">        <span class="string">"cpu"</span>: <span class="string">"CPU"</span>,</span><br><span class="line">        <span class="string">"memory"</span>: <span class="string">"Mem"</span>,</span><br><span class="line">        <span class="string">"proc"</span>: <span class="string">"proc"</span>,</span><br><span class="line">        <span class="string">"activemq"</span>: <span class="string">"active"</span>,</span><br><span class="line">        <span class="string">"disk_io"</span>: <span class="string">"disk_io"</span>,</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">for</span> file <span class="keyword">in</span> dir_lists:</span><br><span class="line">        <span class="keyword">if</span> file.find(alarm_dict[alarm]) != <span class="number">-1</span>:</span><br><span class="line">            alarm_list.append(file)</span><br><span class="line"><span class="keyword">return</span> alarm_list</span><br></pre></td></tr></table></figure></div>
+
+<h3 id="对disk项进行分类并按照时间排序"><a href="#对disk项进行分类并按照时间排序" class="headerlink" title="对disk项进行分类并按照时间排序"></a>对disk项进行分类并按照时间排序</h3><img src="/2021/06/23/docx%E6%A8%A1%E5%9D%97%E5%B0%8F%E8%AE%B0/filesort.png" class="" title="[title]">
+
+<p>在word文档中找出对应文字的位置，并将前一行的行号加入数组，用于插入图片</p>
+<div class="highlight-wrap"autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false" contenteditable="true"data-rel="PLAIN"><figure class="iseeu highlight /plain"><table><tr><td class="code"><pre><span class="line">graph_line_numbers &#x3D; []</span><br><span class="line">    for i, paragraph in enumerate(document.paragraphs):</span><br><span class="line">        line &#x3D; str(i) + &#39;:&#39; + paragraph.text</span><br><span class="line">        if paragraph.text.find(目录使用情况) !&#x3D; -1:</span><br><span class="line">            add_graph_line_numbers &#x3D; int(line.split(&quot;:&quot;)[0]) - 1</span><br><span class="line">            graph_line_numbers.append(add_graph_line_numbers)</span><br></pre></td></tr></table></figure></div>
+
+<h3 id="将相应的图片插入文档中，并设置合适的宽度，这里为6英寸"><a href="#将相应的图片插入文档中，并设置合适的宽度，这里为6英寸" class="headerlink" title="将相应的图片插入文档中，并设置合适的宽度，这里为6英寸"></a>将相应的图片插入文档中，并设置合适的宽度，这里为6英寸</h3><div class="highlight-wrap"autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false" contenteditable="true"data-rel="PLAIN"><figure class="iseeu highlight /plain"><table><tr><td class="code"><pre><span class="line">#get_info_sort_time方法为上文分类创建的函数</span><br><span class="line">infos &#x3D; get_info_sort_time(disk)  </span><br><span class="line">    for number, info in zip(graph_line_numbers, infos):</span><br><span class="line">        para &#x3D; document.paragraphs[int(number)]</span><br><span class="line">        run &#x3D; para.add_run()</span><br><span class="line">        run.add_picture(info, width&#x3D;Inches(6))</span><br></pre></td></tr></table></figure></div>
+
+<p> 可以修改文档中的时间(文档中的时间为01.17)</p>
+<div class="highlight-wrap"autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false" contenteditable="true"data-rel="PYTHON"><figure class="iseeu highlight /python"><table><tr><td class="code"><pre><span class="line">document_time = str(datetime.datetime.now().strftime(<span class="string">'%m.%d'</span>))</span><br><span class="line">   <span class="keyword">for</span> paragraph <span class="keyword">in</span> document.paragraphs:</span><br><span class="line">       <span class="keyword">for</span> run <span class="keyword">in</span> paragraph.runs:</span><br><span class="line">           <span class="keyword">if</span> <span class="string">"01.17"</span> <span class="keyword">in</span> run.text:</span><br><span class="line">               run.text = run.text.replace(<span class="string">'01.17'</span>,  document_time)</span><br></pre></td></tr></table></figure></div>
+
+<h3 id="修改word图表中的时间"><a href="#修改word图表中的时间" class="headerlink" title="修改word图表中的时间"></a>修改word图表中的时间</h3><div class="highlight-wrap"autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false" contenteditable="true"data-rel="PLAIN"><figure class="iseeu highlight /plain"><table><tr><td class="code"><pre><span class="line">for table in document.tables:</span><br><span class="line">        for row in table.rows:   # 读表的每行</span><br><span class="line">            for cell in row.cells:   # 读一行中的所有单元格</span><br><span class="line">                for paragraph in cell.paragraphs:    # 读单元格的所有段落</span><br><span class="line">                    if paragraph.text.split():</span><br><span class="line">                        if paragraph.text.find(&#39;2021&#x2F;01&#x2F;17&#39;) !&#x3D; -1:</span><br><span class="line">                            paragraph.text &#x3D; paragraph.text.replace(&#39;2021&#x2F;01&#x2F;17&#39;, str(datetime.datetime.now().strftime( &#39;%Y&#x2F;%m&#x2F;%d&#39; )))</span><br></pre></td></tr></table></figure></div>
+
+]]></content>
+      <tags>
+        <tag>python</tag>
+      </tags>
+  </entry>
+  <entry>
     <title>docker-内部端口映射问题</title>
     <url>/2020/07/16/docker01/</url>
     <content><![CDATA[<h2 id="虚拟机挂起再开启后docker容器映射端口无法访问"><a href="#虚拟机挂起再开启后docker容器映射端口无法访问" class="headerlink" title="虚拟机挂起再开启后docker容器映射端口无法访问"></a>虚拟机挂起再开启后docker容器映射端口无法访问</h2><h2 id="需要在宿主机上设置ipv4端口转发"><a href="#需要在宿主机上设置ipv4端口转发" class="headerlink" title="需要在宿主机上设置ipv4端口转发"></a>需要在宿主机上设置ipv4端口转发</h2> <a id="more"></a>
@@ -28,6 +63,26 @@
 ]]></content>
       <tags>
         <tag>docker</tag>
+        <tag>linux</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>利用iostat命令自定义key实现zabbix磁盘io监控</title>
+    <url>/2021/03/11/iostat/</url>
+    <content><![CDATA[<p>安装sysstat</p>
+<div class="highlight-wrap"autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false" contenteditable="true"data-rel="BASH"><figure class="iseeu highlight /bash"><table><tr><td class="code"><pre><span class="line">yum install sysstat -y</span><br></pre></td></tr></table></figure></div>
+<a id="more"></a>
+<p>安装bc</p>
+<div class="highlight-wrap"autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false" contenteditable="true"data-rel="BASH"><figure class="iseeu highlight /bash"><table><tr><td class="code"><pre><span class="line">yum install bc -y</span><br></pre></td></tr></table></figure></div>
+<p>编写关于iostat的脚本(io_monitor.sh)可以考虑不写bc<br>测试脚本可用性</p>
+<div class="highlight-wrap"autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false" contenteditable="true"data-rel="BASH"><figure class="iseeu highlight /bash"><table><tr><td class="code"><pre><span class="line">./io_monitor.sh disk_read</span><br></pre></td></tr></table></figure></div>
+<p>zabbix_agentd.conf中加入自定义key:</p>
+<div class="highlight-wrap"autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false" contenteditable="true"data-rel="BASH"><figure class="iseeu highlight /bash"><table><tr><td class="code"><pre><span class="line">UserParameter=io_stats[*],/etc/zabbix/io_monitor.sh <span class="string">"<span class="variable">$1</span>"</span></span><br></pre></td></tr></table></figure></div>
+<p>/etc/zabbix/io_monitor.sh 为脚本位置<br>重启zabbix_agentd服务<br>zabbix服务端测试自定义key是否可以使用</p>
+<div class="highlight-wrap"autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false" contenteditable="true"data-rel="BASH"><figure class="iseeu highlight /bash"><table><tr><td class="code"><pre><span class="line">zabbix_get -s 188.103.189.104 -p 10050 -k <span class="string">"io_stats[disk_read]"</span></span><br></pre></td></tr></table></figure></div>
+<p>zbbix页面完成监控配置</p>
+]]></content>
+      <tags>
         <tag>linux</tag>
       </tags>
   </entry>
@@ -63,26 +118,6 @@
       </tags>
   </entry>
   <entry>
-    <title>利用iostat命令自定义key实现zabbix磁盘io监控</title>
-    <url>/2021/03/11/iostat/</url>
-    <content><![CDATA[<p>安装sysstat</p>
-<div class="highlight-wrap"autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false" contenteditable="true"data-rel="BASH"><figure class="iseeu highlight /bash"><table><tr><td class="code"><pre><span class="line">yum install sysstat -y</span><br></pre></td></tr></table></figure></div>
-<a id="more"></a>
-<p>安装bc</p>
-<div class="highlight-wrap"autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false" contenteditable="true"data-rel="BASH"><figure class="iseeu highlight /bash"><table><tr><td class="code"><pre><span class="line">yum install bc -y</span><br></pre></td></tr></table></figure></div>
-<p>编写关于iostat的脚本(io_monitor.sh)可以考虑不写bc<br>测试脚本可用性</p>
-<div class="highlight-wrap"autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false" contenteditable="true"data-rel="BASH"><figure class="iseeu highlight /bash"><table><tr><td class="code"><pre><span class="line">./io_monitor.sh disk_read</span><br></pre></td></tr></table></figure></div>
-<p>zabbix_agentd.conf中加入自定义key:</p>
-<div class="highlight-wrap"autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false" contenteditable="true"data-rel="BASH"><figure class="iseeu highlight /bash"><table><tr><td class="code"><pre><span class="line">UserParameter=io_stats[*],/etc/zabbix/io_monitor.sh <span class="string">"<span class="variable">$1</span>"</span></span><br></pre></td></tr></table></figure></div>
-<p>/etc/zabbix/io_monitor.sh 为脚本位置<br>重启zabbix_agentd服务<br>zabbix服务端测试自定义key是否可以使用</p>
-<div class="highlight-wrap"autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false" contenteditable="true"data-rel="BASH"><figure class="iseeu highlight /bash"><table><tr><td class="code"><pre><span class="line">zabbix_get -s 188.103.189.104 -p 10050 -k <span class="string">"io_stats[disk_read]"</span></span><br></pre></td></tr></table></figure></div>
-<p>zbbix页面完成监控配置</p>
-]]></content>
-      <tags>
-        <tag>linux</tag>
-      </tags>
-  </entry>
-  <entry>
     <title>my-first-blog</title>
     <url>/2020/07/14/my-first-blog/</url>
     <content><![CDATA[<h1 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h1><p>使用github pages服务搭建博客的好处有：</p>
@@ -101,21 +136,6 @@
 ]]></content>
   </entry>
   <entry>
-    <title>python random</title>
-    <url>/2020/07/24/python-OrderedDict/</url>
-    <content><![CDATA[<h3 id="模块random包含以各种方式生成随机数的函数，其中的randint-返回一个位于指定范围的数"><a href="#模块random包含以各种方式生成随机数的函数，其中的randint-返回一个位于指定范围的数" class="headerlink" title="模块random包含以各种方式生成随机数的函数，其中的randint()返回一个位于指定范围的数"></a>模块random包含以各种方式生成随机数的函数，其中的randint()返回一个位于指定范围的数</h3><a id="more"></a>
-<p>例如，下面的代码返回一个 1-6内的整数：</p>
-<div class="highlight-wrap"autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false" contenteditable="true"data-rel="BASH"><figure class="iseeu highlight /bash"><table><tr><td class="code"><pre><span class="line">from random import  randint</span><br><span class="line">x = randint(1, 6)</span><br></pre></td></tr></table></figure></div>
-
-<h3 id="使用模块random创建die类，包含一个sides属性，默认值为6。编写一个roll-die-方法，打印位于1和骰子面数之间的随机数。"><a href="#使用模块random创建die类，包含一个sides属性，默认值为6。编写一个roll-die-方法，打印位于1和骰子面数之间的随机数。" class="headerlink" title="使用模块random创建die类，包含一个sides属性，默认值为6。编写一个roll_die()方法，打印位于1和骰子面数之间的随机数。"></a>使用模块random创建die类，包含一个sides属性，默认值为6。编写一个roll_die()方法，打印位于1和骰子面数之间的随机数。</h3><p>下面代码通过调用roll_die()方法输入一个int类型传递给self.sides，生成骰子面数和投掷次数，投掷次数也可以设置成默认值。</p>
-<div class="highlight-wrap"autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false" contenteditable="true"data-rel="BASH"><figure class="iseeu highlight /bash"><table><tr><td class="code"><pre><span class="line">from random import randint</span><br><span class="line"></span><br><span class="line">class Die():</span><br><span class="line">    def __init__(self):</span><br><span class="line">        self.sides = 6</span><br><span class="line"></span><br><span class="line">    def roll_die(self):</span><br><span class="line">        self.sides = int(input(<span class="string">"please input your number: "</span>))</span><br><span class="line">        <span class="keyword">for</span> i <span class="keyword">in</span> range(self.sides):</span><br><span class="line">            x = randint(1, self.sides)</span><br><span class="line">            <span class="built_in">print</span>(x)</span><br></pre></td></tr></table></figure></div>
-<p>指定一个实例名称，并调用类中的roll_die()方法</p>
-<div class="highlight-wrap"autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false" contenteditable="true"data-rel="BASH"><figure class="iseeu highlight /bash"><table><tr><td class="code"><pre><span class="line">x = Die()</span><br><span class="line">x.roll_die()</span><br><span class="line">实现效果</span><br><span class="line">please input your number: 5</span><br><span class="line">1</span><br><span class="line">3</span><br><span class="line">5</span><br><span class="line">2</span><br><span class="line">5</span><br></pre></td></tr></table></figure></div>]]></content>
-      <tags>
-        <tag>python</tag>
-      </tags>
-  </entry>
-  <entry>
     <title>python_search</title>
     <url>/2020/08/06/python-search/</url>
     <content><![CDATA[<h2 id="利用高德地图web服务api实现地理-逆地址编码"><a href="#利用高德地图web服务api实现地理-逆地址编码" class="headerlink" title="利用高德地图web服务api实现地理/逆地址编码"></a>利用高德地图web服务api实现地理/逆地址编码</h2><a id="more"></a>
@@ -130,6 +150,21 @@
         <tag>python</tag>
         <tag>requests</tag>
         <tag>socket</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>python random</title>
+    <url>/2020/07/24/python-OrderedDict/</url>
+    <content><![CDATA[<h3 id="模块random包含以各种方式生成随机数的函数，其中的randint-返回一个位于指定范围的数"><a href="#模块random包含以各种方式生成随机数的函数，其中的randint-返回一个位于指定范围的数" class="headerlink" title="模块random包含以各种方式生成随机数的函数，其中的randint()返回一个位于指定范围的数"></a>模块random包含以各种方式生成随机数的函数，其中的randint()返回一个位于指定范围的数</h3><a id="more"></a>
+<p>例如，下面的代码返回一个 1-6内的整数：</p>
+<div class="highlight-wrap"autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false" contenteditable="true"data-rel="BASH"><figure class="iseeu highlight /bash"><table><tr><td class="code"><pre><span class="line">from random import  randint</span><br><span class="line">x = randint(1, 6)</span><br></pre></td></tr></table></figure></div>
+
+<h3 id="使用模块random创建die类，包含一个sides属性，默认值为6。编写一个roll-die-方法，打印位于1和骰子面数之间的随机数。"><a href="#使用模块random创建die类，包含一个sides属性，默认值为6。编写一个roll-die-方法，打印位于1和骰子面数之间的随机数。" class="headerlink" title="使用模块random创建die类，包含一个sides属性，默认值为6。编写一个roll_die()方法，打印位于1和骰子面数之间的随机数。"></a>使用模块random创建die类，包含一个sides属性，默认值为6。编写一个roll_die()方法，打印位于1和骰子面数之间的随机数。</h3><p>下面代码通过调用roll_die()方法输入一个int类型传递给self.sides，生成骰子面数和投掷次数，投掷次数也可以设置成默认值。</p>
+<div class="highlight-wrap"autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false" contenteditable="true"data-rel="BASH"><figure class="iseeu highlight /bash"><table><tr><td class="code"><pre><span class="line">from random import randint</span><br><span class="line"></span><br><span class="line">class Die():</span><br><span class="line">    def __init__(self):</span><br><span class="line">        self.sides = 6</span><br><span class="line"></span><br><span class="line">    def roll_die(self):</span><br><span class="line">        self.sides = int(input(<span class="string">"please input your number: "</span>))</span><br><span class="line">        <span class="keyword">for</span> i <span class="keyword">in</span> range(self.sides):</span><br><span class="line">            x = randint(1, self.sides)</span><br><span class="line">            <span class="built_in">print</span>(x)</span><br></pre></td></tr></table></figure></div>
+<p>指定一个实例名称，并调用类中的roll_die()方法</p>
+<div class="highlight-wrap"autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false" contenteditable="true"data-rel="BASH"><figure class="iseeu highlight /bash"><table><tr><td class="code"><pre><span class="line">x = Die()</span><br><span class="line">x.roll_die()</span><br><span class="line">实现效果</span><br><span class="line">please input your number: 5</span><br><span class="line">1</span><br><span class="line">3</span><br><span class="line">5</span><br><span class="line">2</span><br><span class="line">5</span><br></pre></td></tr></table></figure></div>]]></content>
+      <tags>
+        <tag>python</tag>
       </tags>
   </entry>
   <entry>
@@ -257,20 +292,6 @@
       </tags>
   </entry>
   <entry>
-    <title>数据存储和读取</title>
-    <url>/2020/07/23/%E5%AD%98%E5%82%A8%E6%95%B0%E6%8D%AE/</url>
-    <content><![CDATA[<h2 id="使用json-dump-和json-load"><a href="#使用json-dump-和json-load" class="headerlink" title="使用json.dump()和json.load()"></a>使用json.dump()和json.load()</h2><h3 id="存储数据"><a href="#存储数据" class="headerlink" title="存储数据"></a>存储数据</h3><a id="more"></a>
-<div class="highlight-wrap"autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false" contenteditable="true"data-rel="BASH"><figure class="iseeu highlight /bash"><table><tr><td class="code"><pre><span class="line">import  json</span><br><span class="line"></span><br><span class="line">numbers = [2, 3, 5, 7, 11, 12]</span><br><span class="line"></span><br><span class="line">filename = <span class="string">"numbers.json"</span></span><br><span class="line">with open(filename, <span class="string">"w"</span>) as file_object:</span><br><span class="line">    json.dump(numbers, file_object)</span><br></pre></td></tr></table></figure></div>
-
-<h3 id="读取数据"><a href="#读取数据" class="headerlink" title="读取数据"></a>读取数据</h3><div class="highlight-wrap"autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false" contenteditable="true"data-rel="BASH"><figure class="iseeu highlight /bash"><table><tr><td class="code"><pre><span class="line">import json</span><br><span class="line"></span><br><span class="line">filename = <span class="string">"numbers.json"</span></span><br><span class="line"></span><br><span class="line">with open(filename, <span class="string">"r"</span>)  as file_object:</span><br><span class="line">    numbers = json.load(file_object)</span><br><span class="line">    <span class="built_in">print</span>(numbers)</span><br></pre></td></tr></table></figure></div>
-
-
-]]></content>
-      <tags>
-        <tag>python</tag>
-      </tags>
-  </entry>
-  <entry>
     <title>关于expect</title>
     <url>/2021/06/18/%E5%85%B3%E4%BA%8Eexpect/</url>
     <content><![CDATA[<p>expect是一个自动化交互套件，主要应用于执行命令和程序时，系统以交互形式要求输入指定字符串，实现交互通信。</p>
@@ -372,6 +393,20 @@
 ]]></content>
       <tags>
         <tag>kubernetes</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>数据存储和读取</title>
+    <url>/2020/07/23/%E5%AD%98%E5%82%A8%E6%95%B0%E6%8D%AE/</url>
+    <content><![CDATA[<h2 id="使用json-dump-和json-load"><a href="#使用json-dump-和json-load" class="headerlink" title="使用json.dump()和json.load()"></a>使用json.dump()和json.load()</h2><h3 id="存储数据"><a href="#存储数据" class="headerlink" title="存储数据"></a>存储数据</h3><a id="more"></a>
+<div class="highlight-wrap"autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false" contenteditable="true"data-rel="BASH"><figure class="iseeu highlight /bash"><table><tr><td class="code"><pre><span class="line">import  json</span><br><span class="line"></span><br><span class="line">numbers = [2, 3, 5, 7, 11, 12]</span><br><span class="line"></span><br><span class="line">filename = <span class="string">"numbers.json"</span></span><br><span class="line">with open(filename, <span class="string">"w"</span>) as file_object:</span><br><span class="line">    json.dump(numbers, file_object)</span><br></pre></td></tr></table></figure></div>
+
+<h3 id="读取数据"><a href="#读取数据" class="headerlink" title="读取数据"></a>读取数据</h3><div class="highlight-wrap"autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false" contenteditable="true"data-rel="BASH"><figure class="iseeu highlight /bash"><table><tr><td class="code"><pre><span class="line">import json</span><br><span class="line"></span><br><span class="line">filename = <span class="string">"numbers.json"</span></span><br><span class="line"></span><br><span class="line">with open(filename, <span class="string">"r"</span>)  as file_object:</span><br><span class="line">    numbers = json.load(file_object)</span><br><span class="line">    <span class="built_in">print</span>(numbers)</span><br></pre></td></tr></table></figure></div>
+
+
+]]></content>
+      <tags>
+        <tag>python</tag>
       </tags>
   </entry>
 </search>
